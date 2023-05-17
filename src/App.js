@@ -13,6 +13,7 @@ export default function App() {
   const [tableData, setTableData] = useState([]);
   const [bodyData, setBodyData] = useState([]);
 
+
   useEffect(() => {
     const data = localStorage.getItem("tableData");
     if (data) {
@@ -25,10 +26,9 @@ export default function App() {
       setBodyData(JSON.parse(body));
     }
   }, []);
- 
+
   const handleCloseColumnModal = () => setShowColumnModal(false);
   const handleShowColumnModal = () => setShowColumnModal(true);
-
   const handleCloseAddrecordModal = () => setShowAddrecordModal(false);
   const handleShowAddrecordModal = () => setShowAddrecordModal(true);
 
@@ -56,13 +56,7 @@ export default function App() {
     setTableData(updatedData);
     localStorage.setItem("tableData", JSON.stringify(updatedData));
   };
-  const handleToastSuccess = (message) => {
-    toast.success(message);
-  };
-  
-  const handleToastError = (message) => {
-    toast.error(message);
-  };
+
   return (
     <>
       <div>
@@ -80,8 +74,8 @@ export default function App() {
               <Modal.Title>Column Form</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Column ColumnSubmit={onColumnFormSubmit} 
-              handleToastSuccess={handleToastSuccess} handleToastError={handleToastError}/>
+              <Column ColumnSubmit={onColumnFormSubmit}
+              tableData={tableData}/>
             </Modal.Body>
           </Modal>
         </div>
@@ -99,8 +93,9 @@ export default function App() {
               <Modal.Title>Add Record Form</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Addrecord tableData={tableData} RecordSubmit={onAddrecordFormSubmit} 
-              handleToastSuccess={handleToastSuccess} handleToastError={handleToastError}/>
+              <Addrecord tableData={tableData} RecordSubmit={onAddrecordFormSubmit}
+
+              />
             </Modal.Body>
           </Modal>
         </div>

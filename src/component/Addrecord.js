@@ -1,53 +1,69 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button, Form } from "react-bootstrap";
-import "../base.css"
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function Addrecord({ tableData, RecordSubmit,handleToastError, handleToastSuccess}) {
-  const [record, setRecord] = useState([]);
-
+export default function AddRecord({ tableData, RecordSubmit }) {
+  const [record, setRecord] = useState({});
+  const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setRecord({ ...record, [name]: value });
+    setRecord((prevRecord) => ({ ...prevRecord, [name]: value }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (record === "") {
-      handleToastError("All fields are required");
+
+    let formValid = true;
+    const newErrors = {};
+
+    tableData.forEach((item) => {
+      if (!record[item]) {
+        newErrors[item] = "Field is required";
+        formValid = false;
+      }
+    });
+
+    if (!formValid) {
+      setErrors(newErrors);
+      toast.error("Please fill in all required fields");
       return;
     }
-    console.log("record", record);
-    handleToastSuccess("Record submitted successfully");
+
     RecordSubmit(e, record);
+    toast.success("Record submitted successfully");
+    setRecord({});
   };
+
   return (
     <>
-      <Form >
+      <Form>
         {tableData.map((item, index) => (
           <Form.Group key={index}>
             <Form.Label>{item}</Form.Label>
             <Form.Control
               type="text"
               name={item}
+              value={record[item] || ""}
               onChange={handleInputChange}
-              className="was-validated "
-              
+              isInvalid={!!errors[item]}
+              required
             />
-          </Form.Group>))}
+            <Form.Control.Feedback type="invalid" style={{marginTop:'-15px'}}>{errors[item]}</Form.Control.Feedback>
+          </Form.Group>
+        ))}
         <Button
           type="submit"
           variant="secondary"
           style={{ marginTop: "10px", width: "100px" }}
-          onClick={(e) => handleSubmit(e)}
+          onClick={handleSubmit}
         >
           Submit
         </Button>
       </Form>
-<ToastContainer position="top-right"/>
+      <ToastContainer position="top-right" />
     </>
   );
 }

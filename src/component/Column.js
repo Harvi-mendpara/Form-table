@@ -3,23 +3,36 @@ import { Button, Form } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
-
-const Column = ({ ColumnSubmit,handleToastError, handleToastSuccess }) => {
+const Column = ({ ColumnSubmit, tableData }) => {
   const [data, setData] = useState("");
+  const [error, setError] = useState("");
 
-
-  console.log("dataaaaaaaaaaa", data);
   const handleSubmit = (e) => {
     e.preventDefault();
     if (data === "") {
-      handleToastError("Cannot be blank");
+      toast.error("Cannot be blank");
       return;
     }
-    handleToastSuccess("Record submitted successfully")
+    const checkIfExists = (value) => {
+      const existingColumns = tableData;
+      return existingColumns.includes(value);
+    };
+    const isExistingField = checkIfExists(data);
+    if (isExistingField) {
+      toast.error("Field already exists");
+      setError("Field already exists");
+      return;
+    }
+    toast.success("Record submitted successfully");
     ColumnSubmit(e, data);
-    setData();
+    setData("");
+    setError("");
   };
+  const handleInputChange = (e) => {
+    setData(e.target.value);
+    setError("");
+  };
+
   return (
     <>
       <Form onSubmit={handleSubmit}>
@@ -29,9 +42,10 @@ const Column = ({ ColumnSubmit,handleToastError, handleToastSuccess }) => {
             type="text"
             placeholder="Enter Column"
             value={data}
-            onChange={(e) => setData(e.target.value)}
+            onChange={handleInputChange}
           />
         </Form.Group>
+        {error && <p className="text-danger">{error}</p>}
         <Button
           variant="secondary"
           type="submit"
