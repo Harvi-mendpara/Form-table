@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
-// import Input from "./Input";
+import "../base.css"
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-export default function Addrecord({ tableData, RecordSubmit }) {
-  console.log("tableData----", tableData);
-  const [record, setRecord] = useState({});
+export default function Addrecord({ tableData, RecordSubmit,handleToastError, handleToastSuccess}) {
+  const [record, setRecord] = useState([]);
 
-  console.log("record", record);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -15,34 +15,39 @@ export default function Addrecord({ tableData, RecordSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    if (record === "") {
+      handleToastError("All fields are required");
+      return;
+    }
+    console.log("record", record);
+    handleToastSuccess("Record submitted successfully");
     RecordSubmit(e, record);
-    setRecord("");
   };
-  if (tableData.length === 0) {
-    return <div>No data available.</div>;
-  }
   return (
-    <Form onSubmit={handleSubmit}>
-      {tableData.map((item, index) => (
-        <Form.Group key={index}>
-          {console.log("item-------------------", item)}
-          {console.log("record-------------", record[item])}
-          <Form.Label>{item}</Form.Label>
-          <Form.Control
-            type="text"
-            name={item}
-            value={record[item]}
-            onChange={handleInputChange}
-          />
-        </Form.Group>
-      ))}
-      <Button
-        type="submit"
-        variant="secondary"
-        style={{ marginTop: "10px", width: "100px" }}
-      >
-        Submit
-      </Button>
-    </Form>
+    <>
+      <Form >
+        {tableData.map((item, index) => (
+          <Form.Group key={index}>
+            <Form.Label>{item}</Form.Label>
+            <Form.Control
+              type="text"
+              name={item}
+              onChange={handleInputChange}
+              className="was-validated "
+              
+            />
+          </Form.Group>))}
+        <Button
+          type="submit"
+          variant="secondary"
+          style={{ marginTop: "10px", width: "100px" }}
+          onClick={(e) => handleSubmit(e)}
+        >
+          Submit
+        </Button>
+      </Form>
+<ToastContainer position="top-right"/>
+    </>
   );
 }

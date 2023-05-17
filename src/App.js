@@ -4,13 +4,14 @@ import Column from "./component/Column";
 import Addrecord from "./component/Addrecord";
 import "bootstrap/dist/css/bootstrap.css";
 import TableData from "./component/TableData";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   const [showColumnModal, setShowColumnModal] = useState(false);
   const [showAddrecordModal, setShowAddrecordModal] = useState(false);
   const [tableData, setTableData] = useState([]);
-
-  console.log('tableData', tableData);
+  const [bodyData, setBodyData] = useState([]);
 
   useEffect(() => {
     const data = localStorage.getItem("tableData");
@@ -18,7 +19,13 @@ export default function App() {
       setTableData(JSON.parse(data));
     }
   }, []);
-
+  useEffect(() => {
+    const body = localStorage.getItem("bodyData");
+    if (body) {
+      setBodyData(JSON.parse(body));
+    }
+  }, []);
+ 
   const handleCloseColumnModal = () => setShowColumnModal(false);
   const handleShowColumnModal = () => setShowColumnModal(true);
 
@@ -31,18 +38,31 @@ export default function App() {
     localStorage.setItem("tableData", JSON.stringify([...tableData, data]));
     handleCloseColumnModal();
   };
-
   const onAddrecordFormSubmit = (e, data) => {
     e.preventDefault();
-    const updatedTableData = [...tableData, data];
+    const updatedTableData = [...bodyData, data];
     console.log('updatedTableData@@@@@@', updatedTableData)
-    setTableData(updatedTableData);
-    localStorage.setItem("tableData", JSON.stringify(updatedTableData));
+    setBodyData(updatedTableData);
+    localStorage.setItem("bodyData", JSON.stringify(updatedTableData));
     handleCloseAddrecordModal();
   };
-
-
-
+  const handleDelete = (index) => {
+    const updatedBodyData = [...bodyData];
+    updatedBodyData.splice(index, 1);
+    setBodyData(updatedBodyData);
+    localStorage.setItem("bodyData", JSON.stringify(updatedBodyData));
+  };
+  const handleColumnDelete = (updatedData) => {
+    setTableData(updatedData);
+    localStorage.setItem("tableData", JSON.stringify(updatedData));
+  };
+  const handleToastSuccess = (message) => {
+    toast.success(message);
+  };
+  
+  const handleToastError = (message) => {
+    toast.error(message);
+  };
   return (
     <>
       <div>
@@ -60,7 +80,8 @@ export default function App() {
               <Modal.Title>Column Form</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Column ColumnSubmit={onColumnFormSubmit} />
+              <Column ColumnSubmit={onColumnFormSubmit} 
+              handleToastSuccess={handleToastSuccess} handleToastError={handleToastError}/>
             </Modal.Body>
           </Modal>
         </div>
@@ -78,15 +99,14 @@ export default function App() {
               <Modal.Title>Add Record Form</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Addrecord
-                RecordSubmit={onAddrecordFormSubmit}
-                tableData={tableData}
-              />
+              <Addrecord tableData={tableData} RecordSubmit={onAddrecordFormSubmit} 
+              handleToastSuccess={handleToastSuccess} handleToastError={handleToastError}/>
             </Modal.Body>
           </Modal>
         </div>
       </div>
-      <TableData data={tableData} />
+      <TableData data={tableData} bodyData={bodyData} onDelete={handleDelete} columnDelete={handleColumnDelete} />
+      <ToastContainer position="top-right" />
     </>
   );
 }
